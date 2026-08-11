@@ -20,13 +20,17 @@ pytest
 The container must expose:
 
 - the repository at `/workspace` with read/write access;
-- an external dataset root at `/data/New_NeuroDataHub` with read-only access.
+- an external dataset root such as `/data/public-omics` with read-only access.
 
-Run the opt-in safety test before any dataset integration test:
+Run the opt-in safety test before any dataset integration test. Select one explicit H5AD file so
+the integration run remains bounded:
 
 ```bash
-OMICSREPRO_DATA_ROOT=/data/New_NeuroDataHub pytest -m integration
+OMICSREPRO_DATA_ROOT=/data/public-omics \
+OMICSREPRO_H5AD=/data/public-omics/path/to/example.h5ad \
+pytest -m integration
 ```
 
 All generated fixtures, caches, and reports must stay under `/workspace` or a temporary directory.
-
+Server development deployments must not copy or modify `.git`; Git operations happen in the local
+development checkout.

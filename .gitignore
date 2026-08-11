@@ -34,4 +34,5 @@ build/
 
 .env
 reports/
-
+downloads/
+.tmp/

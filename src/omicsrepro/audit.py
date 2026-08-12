@@ -7,7 +7,7 @@ from pathlib import Path
 from omicsrepro import __version__
 from omicsrepro.checks.h5ad import inspect_h5ad
 from omicsrepro.config import discover_manifest, load_manifest
-from omicsrepro.models import AuditReport, CheckResult, Outcome
+from omicsrepro.models import AuditReport, CheckResult, DatasetSummary, Outcome
 
 
 def _resolved(root: Path, configured: str) -> Path:
@@ -42,6 +42,7 @@ def audit_project(project: Path) -> AuditReport:
             evidence={"schema_version": manifest.schema_version},
         )
     ]
+    datasets: list[DatasetSummary] = []
 
     for item in manifest.inputs:
         resolved = _resolved(root, item.path)
@@ -53,7 +54,16 @@ def audit_project(project: Path) -> AuditReport:
         )
         checks.append(path_check)
         if path_check.outcome == Outcome.PASS and item.format == "h5ad":
-            checks.extend(inspect_h5ad(resolved, item.checks, target=item.path))
+            checks.extend(
+                inspect_h5ad(
+                    resolved,
+                    item.checks,
+                    target=item.path,
+                    profile=item.profile,
+                    input_id=item.id,
+                    summaries=datasets,
+                )
+            )
 
     for artifact in manifest.artifacts:
         checks.append(
@@ -80,4 +90,5 @@ def audit_project(project: Path) -> AuditReport:
         project=manifest.project.name,
         manifest=manifest_path.name,
         checks=checks,
+        datasets=datasets,
     )

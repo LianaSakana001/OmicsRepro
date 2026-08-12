@@ -28,6 +28,17 @@ def test_doctor() -> None:
     assert report["platform"]
 
 
+def test_profiles_lists_machine_readable_contracts() -> None:
+    result = runner.invoke(app, ["profiles"])
+
+    assert result.exit_code == 0
+    payload = json.loads(result.stdout)
+    assert payload["profile_version"] == 1
+    assert payload["profiles"]["scrna-basic"]["require_raw_counts"] is True
+    assert payload["profiles"]["scrna-publication"]["require_embedding"] is True
+    assert "Donor ID" in payload["semantic_aliases"]["donor"]
+
+
 def test_check_json_exit_zero(valid_project: Path) -> None:
     result = runner.invoke(app, ["check", str(valid_project)])
 
@@ -69,4 +80,5 @@ def test_init_refuses_existing_manifest(tmp_path: Path) -> None:
 
     assert first.exit_code == 0
     assert (tmp_path / "omicsrepro.yml").is_file()
+    assert "profile: scrna-basic" in (tmp_path / "omicsrepro.yml").read_text(encoding="utf-8")
     assert second.exit_code == 2

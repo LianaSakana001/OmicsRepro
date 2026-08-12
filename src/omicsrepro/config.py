@@ -36,6 +36,23 @@ class H5ADCheckSpec(BaseModel):
     unique_obs_names: bool = True
     unique_var_names: bool = True
     max_index_values: int = Field(default=1_000_000, ge=1)
+    max_column_values: int = Field(default=2_000_000, ge=1)
+    max_categories: int = Field(default=100_000, ge=1)
+    max_matrix_sample_values: int = Field(default=100_000, ge=1)
+    semantic_aliases: dict[str, list[str]] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def validate_aliases(self) -> H5ADCheckSpec:
+        """Reject unknown semantic concepts and empty alias groups."""
+
+        allowed = {"donor", "sample", "cell_type", "batch", "gene_id"}
+        unknown = sorted(set(self.semantic_aliases) - allowed)
+        if unknown:
+            raise ValueError(f"unknown semantic alias groups: {', '.join(unknown)}")
+        empty = sorted(key for key, value in self.semantic_aliases.items() if not value)
+        if empty:
+            raise ValueError(f"empty semantic alias groups: {', '.join(empty)}")
+        return self
 
 
 class InputSpec(BaseModel):
@@ -46,6 +63,7 @@ class InputSpec(BaseModel):
     id: str = Field(pattern=IDENTIFIER_PATTERN)
     path: str = Field(min_length=1)
     format: Literal["h5ad"] = "h5ad"
+    profile: Literal["scrna-basic", "scrna-publication"] | None = None
     checks: H5ADCheckSpec = Field(default_factory=H5ADCheckSpec)
 
 

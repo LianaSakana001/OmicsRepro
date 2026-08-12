@@ -14,4 +14,5 @@ synthetic reproduction is strongly preferred.
 
 The deterministic audit engine opens declared inputs read-only, does not execute declared analysis
 scripts, and does not require network access. Report files are created only when the caller provides
-an explicit output path.
+an explicit output path. Single-cell metadata reports contain aggregate completeness/cardinality
+counts but never category values, donor identifiers, or sample identifiers.

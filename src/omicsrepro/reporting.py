@@ -34,10 +34,42 @@ def render_markdown(report: AuditReport) -> str:
             f"- Summary: {report.summary.passed} passed, "
             f"{report.summary.warnings} warnings, {report.summary.failed} failed"
         ),
-        "",
-        "| Outcome | Rule | Target | Message |",
-        "|---|---|---|---|",
     ]
+    if report.datasets:
+        lines.extend(["", "## Dataset delivery summary", ""])
+        for dataset in report.datasets:
+            profile = dataset.profile or "custom"
+            dimensions = f"{dataset.observations} × {dataset.variables}"
+            lines.extend(
+                [
+                    f"### {_cell(dataset.input_id)}",
+                    "",
+                    f"- Format: `{dataset.format}`",
+                    f"- Profile: `{profile}`",
+                    f"- Dimensions: `{dimensions}`",
+                    (
+                        f"- Raw counts: `{dataset.raw_count_location or 'not validated'}` "
+                        f"({'validated' if dataset.raw_counts_validated else 'not validated'})"
+                    ),
+                    (
+                        "- Semantic columns: "
+                        + (
+                            ", ".join(
+                                f"`{concept}={column}`"
+                                for concept, column in sorted(dataset.semantic_columns.items())
+                            )
+                            or "none"
+                        )
+                    ),
+                    (
+                        "- Embeddings: "
+                        + (", ".join(f"`{item}`" for item in dataset.embeddings) or "none")
+                    ),
+                    "",
+                ]
+            )
+
+    lines.extend(["## Checks", "", "| Outcome | Rule | Target | Message |", "|---|---|---|---|"])
     for item in report.checks:
         lines.append(
             f"| {item.outcome.value.upper()} | `{item.code}` | "

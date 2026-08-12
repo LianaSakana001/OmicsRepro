@@ -1,0 +1,43 @@
+schema_version: 1
+id: p0-dev-003
+partition: development
+class: fail
+failure_family: sample_donor_conflict
+severity: high
+title: One sample maps to two donors
+rationale: A sample with two donor identities makes the biological replicate mapping contradictory.
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-D21, SYN-CONFLICT-S]
+    - [Microglia, AD, SYN-D22, SYN-CONFLICT-S]
+    - [Microglia, Control, SYN-D23, SYN-S23]
+    - [Microglia, Control, SYN-D24, SYN-S24]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 2
+expected:
+  l1_decision: fail
+  rule_outcomes:
+    ORV107: fail
+    ORV190: indeterminate
+  allowed_l1_decisions: []
+privacy_canaries: [SYN-CONFLICT-S, SYN-D21]
+label_review:
+  status: pending
+  reviewer: null

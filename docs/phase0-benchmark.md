@@ -3,6 +3,17 @@
 Phase 0 tests whether a deterministic scientific-use contract adds measurable value beyond a
 strong general Agent with expert instructions. It is a go/no-go experiment, not a launch claim.
 
+## Current status
+
+The benchmark is being assembled, not yet reported. The public development partition begins with
+small synthetic adversarial cases under `benchmarks/phase0/development`. These cases test the
+benchmark machinery and known boundaries; scores on them are regression results, not evidence that
+the product thesis passed.
+
+The target corpus remains 40–60 reviewed cases. No Phase 0 product claim is permitted until the
+protocol, frozen evaluation partition, baseline prompts/instructions, repeated runs, and aggregate
+report are complete.
+
 ## Frozen scope
 
 The first target is `scrna.de_between_conditions/v0`, limited to read-only preflight evidence for a
@@ -31,6 +42,30 @@ partition but must not tune against hidden evaluation labels. Real server datase
 only derived, non-identifying benchmark fixtures and reports may be written under the OmicsRepro
 project directory.
 
+During an active round, frozen evaluation definitions and labels are held outside the development
+repository with access limited to the evaluation custodian. Rule authors receive only a case ID,
+evidence budget, and run interface. After the decision is recorded, maintainers publish the
+evaluation protocol, aggregate result, and all fixtures/labels that licensing and privacy permit.
+Any non-publishable case must have a publishable synthetic surrogate and a documented exclusion
+from independently reproducible scoring.
+
+## Case record
+
+Every case must include:
+
+- a stable ID, partition, class, failure family, and severity;
+- a scientific rationale and one minimal mutation from a valid control where possible;
+- synthetic or redistributable provenance and an explicit privacy classification;
+- expected L1 decision and rule-level outcomes reviewed by a second person;
+- known ambiguity, allowed outcomes, and exclusion rationale when a single label is inappropriate.
+
+The development harness derives tiny H5AD fixtures at runtime; binary omics files are not committed.
+It also checks that donor and sample identifiers do not enter receipts. Run it with:
+
+```bash
+PYTHONPATH=src python benchmarks/phase0/run_development.py
+```
+
 ## Baselines
 
 Compare the same cases and evidence budget across:
@@ -44,6 +79,16 @@ Compare the same cases and evidence budget across:
 Record high-severity recall, precision, silent-error escape rate, run-to-run variance, runtime,
 token cost, evidence completeness, abstention quality, and remediation quality. Native validators
 are scored only on failure families within their documented scope.
+
+For the L1 development corpus, `ORV190` is excluded from the artifact-decision score because it is
+the expected abstention for unobserved execution. The harness assigns an L1 decision as follows:
+
+1. any artifact-level `FAIL` means fail;
+2. otherwise any artifact-level `INDETERMINATE` means indeterminate;
+3. otherwise warnings are non-blocking and the L1 decision is pass.
+
+This benchmark-only projection does not change the public receipt verdict or weaken fail-closed
+precedence.
 
 ## Internal go/no-go gate
 

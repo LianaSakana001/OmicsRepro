@@ -1,0 +1,43 @@
+schema_version: 1
+id: p0-dev-004
+partition: development
+class: fail
+failure_family: insufficient_biological_replicates
+severity: high
+title: Control group is below the declared donor floor
+rationale: Cell count cannot replace the declared minimum number of biological replicates.
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-D31, SYN-S31]
+    - [Microglia, AD, SYN-D32, SYN-S32]
+    - [Microglia, Control, SYN-D33, SYN-S33]
+    - [Microglia, Control, SYN-D33, SYN-S34]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 2
+expected:
+  l1_decision: fail
+  rule_outcomes:
+    ORV108: fail
+    ORV190: indeterminate
+  allowed_l1_decisions: []
+privacy_canaries: [SYN-D33, SYN-S34]
+label_review:
+  status: pending
+  reviewer: null

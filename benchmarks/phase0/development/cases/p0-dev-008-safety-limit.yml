@@ -1,0 +1,42 @@
+schema_version: 1
+id: p0-dev-008
+partition: development
+class: ambiguous
+failure_family: safety_limit_exhaustion
+severity: medium
+title: Declared observation limit prevents design inspection
+rationale: Resource safety must cause an honest abstention, not an inferred pass or failure.
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-D71, SYN-S71]
+    - [Microglia, Control, SYN-D72, SYN-S72]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 1
+  max_observations: 1
+expected:
+  l1_decision: indeterminate
+  rule_outcomes:
+    ORV103: indeterminate
+    ORV190: indeterminate
+  allowed_l1_decisions: [indeterminate]
+privacy_canaries: [SYN-D71, SYN-S71]
+label_review:
+  status: pending
+  reviewer: null

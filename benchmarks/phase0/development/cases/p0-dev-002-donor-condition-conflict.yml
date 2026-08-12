@@ -1,0 +1,43 @@
+schema_version: 1
+id: p0-dev-002
+partition: development
+class: fail
+failure_family: donor_condition_conflict
+severity: high
+title: One donor appears in both conditions
+rationale: A biological replicate cannot independently support both sides of the declared contrast.
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-CONFLICT-D, SYN-S11]
+    - [Microglia, Control, SYN-CONFLICT-D, SYN-S12]
+    - [Microglia, AD, SYN-D12, SYN-S13]
+    - [Microglia, Control, SYN-D13, SYN-S14]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 1
+expected:
+  l1_decision: fail
+  rule_outcomes:
+    ORV107: fail
+    ORV190: indeterminate
+  allowed_l1_decisions: []
+privacy_canaries: [SYN-CONFLICT-D, SYN-S11]
+label_review:
+  status: pending
+  reviewer: null

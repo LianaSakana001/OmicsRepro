@@ -29,3 +29,7 @@ when required evidence is unavailable.
   evolve behind a separate receipt schema.
 - Every scientific contract must document its scope, rationale, required evidence, false-positive
   boundary, known exceptions, assurance level, and version.
+- Treat public Phase 0 development cases as visible regression fixtures, never as proof of product
+  advantage. Do not inspect or tune against an active frozen evaluation partition.
+- Benchmark fixtures must be synthetic or explicitly redistributable and non-identifying. Keep
+  private paths, real identifiers, frozen labels, and external omics data out of Git.

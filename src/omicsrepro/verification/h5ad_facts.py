@@ -17,7 +17,7 @@ class UnsupportedColumnEncoding(ValueError):
 
 def _text(value: Any) -> str | None:
     if isinstance(value, bytes):
-        return value.decode("utf-8", errors="replace")
+        value = value.decode("utf-8", errors="replace")
     if hasattr(value, "item"):
         value = value.item()
     if value is None:

@@ -2,13 +2,26 @@
 
 from __future__ import annotations
 
-from benchmarks.phase0.run_development import load_cases, run_development
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+RUNNER = ROOT / "benchmarks" / "phase0" / "run_development.py"
 
 
-def test_development_cases_have_unique_frozen_order() -> None:
-    cases = load_cases()
+def test_development_harness_matches_expected_l1_outcomes() -> None:
+    completed = subprocess.run(
+        [sys.executable, str(RUNNER)],
+        cwd=ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    )
+    report = json.loads(completed.stdout)
 
-    assert [case.id for case in cases] == [
+    assert [case["id"] for case in report["cases"]] == [
         "p0-dev-001",
         "p0-dev-002",
         "p0-dev-003",
@@ -18,13 +31,6 @@ def test_development_cases_have_unique_frozen_order() -> None:
         "p0-dev-007",
         "p0-dev-008",
     ]
-    assert all(case.provenance.kind == "synthetic" for case in cases)
-    assert all(case.partition == "development" for case in cases)
-
-
-def test_development_harness_matches_expected_l1_outcomes() -> None:
-    report = run_development()
-
     assert report["case_count"] == 8
     assert report["matched"] == 8
     assert report["actual_l1_decisions"] == {

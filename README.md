@@ -36,6 +36,29 @@ handed to a collaborator, submitted to a repository, or attached to a publicatio
 
 OmicsRepro requires Python 3.11 or 3.12.
 
+Until the first tagged release is published, early adopters can install the current public source:
+
+```bash
+python -m pip install \
+  "omicsrepro @ git+https://github.com/LianaSakana001/OmicsRepro.git@main"
+```
+
+After the `v0.2.0` tag is published, use the immutable release tag instead:
+
+```bash
+python -m pip install \
+  "omicsrepro @ git+https://github.com/LianaSakana001/OmicsRepro.git@v0.2.0"
+```
+
+Then verify the installation:
+
+```bash
+omicsrepro version
+omicsrepro doctor
+```
+
+For development, clone the repository and install the editable test environment:
+
 ```bash
 python -m pip install -e '.[dev]'
 ```
@@ -160,6 +183,16 @@ pytest -m integration
 ```
 
 See [docs/development.md](docs/development.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
+
+## Citation
+
+If OmicsRepro contributes to a dataset delivery, publication, or reproducibility review, cite the
+software and the exact version used. GitHub renders the repository's
+[`CITATION.cff`](CITATION.cff) through **Cite this repository**. A DOI will only be added if a
+versioned software archive is deposited; none is claimed for v0.2.0.
+
+Release changes are recorded in [CHANGELOG.md](CHANGELOG.md). Maintainer release checks are
+documented in [docs/releasing.md](docs/releasing.md).
 
 ## Scope after v0.2
 

@@ -1,27 +1,36 @@
 # OmicsRepro
 
-**Local-first, evidence-based reproducibility checks for omics research.**
+**Preflight checks for single-cell data delivery and publication.**
 
-OmicsRepro audits the declared evidence chain from immutable source data to analysis scripts
-and expected artifacts. Version 0.1 provides deterministic, read-only checks for Python and
-AnnData/H5AD projects. It does not execute project scripts or upload data.
+OmicsRepro audits the evidence chain from immutable source data to analysis scripts and expected
+artifacts. It provides deterministic, local-first checks for Python and AnnData/H5AD projects. It
+does not execute project scripts, load the full expression matrix, upload data, or require network
+access.
 
-> Status: v0.1. The manifest and JSON report use schema version 1.
+> Status: v0.2. The manifest remains schema version 1; JSON and Markdown reports use schema
+> version 2.
 
-## What v0.1 checks
+## The problem
 
-- discovery and strict validation of `omicsrepro.yml`;
-- references between declared inputs, analysis steps, and output artifacts;
-- existence of every declared input, script, and artifact;
-- H5AD container and AnnData encoding metadata;
-- `obs`, `var`, and `X` presence and shape consistency;
-- required `obs` and `var` columns;
-- `obs_names` and `var_names` uniqueness with a configurable safety limit;
-- optional presence of `raw`;
-- deterministic JSON and Markdown reports with evidence for every rule.
+A project can contain code and an H5AD file yet still be difficult to reuse. The deposited object
+may omit donor, sample, batch, or cell-type annotations; raw counts may have been overwritten;
+embeddings may be absent; or the final figure may no longer be connected to a declared script and
+artifact. OmicsRepro turns those implicit expectations into an executable contract before data are
+handed to a collaborator, submitted to a repository, or attached to a publication.
 
-OmicsRepro reports evidence instead of a single opaque score. Every result contains a stable
-rule code, outcome, target, message, and relevant metadata or remediation.
+## What v0.2 checks
+
+- strict discovery and validation of `omicsrepro.yml`;
+- declared input, analysis-step, and artifact references and paths;
+- H5AD container, AnnData encoding, `obs`, `var`, and `X` structure;
+- matrix/axis shape consistency and unique observation/variable names;
+- explicit required `obs` and `var` columns;
+- semantic single-cell fields through common aliases and project-specific extensions;
+- bounded completeness and cardinality checks without exposing metadata values;
+- raw-count availability in `raw` or conventionally named `layers`;
+- bounded evidence that a raw-count representation is finite, non-negative, and integer-like;
+- publication embeddings such as UMAP, t-SNE, or PCA with compatible dimensions;
+- deterministic JSON and Markdown reports with a delivery summary and evidence per rule.
 
 ## Install
 
@@ -31,8 +40,8 @@ OmicsRepro requires Python 3.11 or 3.12.
 python -m pip install -e '.[dev]'
 ```
 
-The optional `omics` extra installs AnnData for integration and fixture development. The v0.1
-auditor itself reads H5AD metadata with `h5py` and never loads the expression matrix into memory.
+The optional `omics` extra installs AnnData for integration and fixture development. The auditor
+itself reads H5AD metadata with `h5py` and never materializes `X`.
 
 ```bash
 python -m pip install -e '.[dev,omics]'
@@ -40,7 +49,7 @@ python -m pip install -e '.[dev,omics]'
 
 ## Quick start
 
-Create a starter contract:
+Create a starter contract using the `scrna-basic` profile:
 
 ```bash
 omicsrepro init my-project
@@ -52,8 +61,7 @@ Edit `my-project/omicsrepro.yml`, then audit it:
 omicsrepro check my-project
 ```
 
-JSON is written to stdout by default, which makes the command suitable for CI. To create a
-human-readable report at an explicit location:
+JSON is written to stdout by default for CI. To create a human-readable delivery report:
 
 ```bash
 omicsrepro check my-project --format markdown --output reports/omicsrepro.md
@@ -61,20 +69,33 @@ omicsrepro check my-project --format markdown --output reports/omicsrepro.md
 
 OmicsRepro refuses to replace an existing report unless `--force` is supplied explicitly.
 
-## Exit codes
+## Profiles
 
-| Code | Meaning |
-|---|---|
-| `0` | The audit completed with no failed checks. |
-| `1` | One or more reproducibility checks failed. |
-| `2` | The manifest, command, or explicit report write was invalid. |
+Profiles express domain requirements without forcing every project to use identical column names.
+Inspect the versioned profile definitions and built-in aliases with:
 
-Use `--fail-on-warning` when warnings should also return exit code `1`.
+```bash
+omicsrepro profiles
+```
 
-## Manifest
+| Profile | Intended use | Requirements |
+|---|---|---|
+| `scrna-basic` | Internal handoff and routine reuse | donor, sample, cell type, and raw counts |
+| `scrna-publication` | Publication or public-data preflight | basic requirements plus batch, gene IDs, and an embedding |
 
-The contract connects source data to scripts and expected artifacts without executing any of
-them:
+Common aliases such as `donor_id`, `Donor ID`, `cell_type`, `Subclass`, `counts`, and `UMIs` are
+supported. Projects can extend aliases explicitly:
+
+```yaml
+checks:
+  semantic_aliases:
+    donor: [participant_code]
+    cell_type: [final_annotation]
+```
+
+See [docs/profiles.md](docs/profiles.md) for severity and privacy behavior.
+
+## Manifest example
 
 ```yaml
 schema_version: 1
@@ -84,11 +105,12 @@ inputs:
   - id: primary
     path: data/input.h5ad
     format: h5ad
+    profile: scrna-publication
     checks:
-      required_obs_columns: [donor_id, cell_type]
-      required_var_columns: [gene_ids]
-      require_x: true
-      require_raw: false
+      required_obs_columns: [disease]
+      required_var_columns: [feature_types]
+      semantic_aliases:
+        donor: [participant_code]
 artifacts:
   - id: qc_table
     path: results/qc.tsv
@@ -100,7 +122,16 @@ steps:
     outputs: [qc_table]
 ```
 
-See [docs/manifest.md](docs/manifest.md) for the full v1 contract.
+The profile and explicit `checks` are additive. See [docs/manifest.md](docs/manifest.md) for the
+full contract.
+
+## Exit codes
+
+| Code | Meaning |
+|---|---|
+| `0` | Audit completed without failures; warnings may remain. |
+| `1` | One or more checks failed, or `--fail-on-warning` was selected. |
+| `2` | Manifest, command, or explicit report write was invalid. |
 
 ## Safety model
 
@@ -108,8 +139,10 @@ See [docs/manifest.md](docs/manifest.md) for the full v1 contract.
 - Analysis scripts are declared and checked for existence, never executed.
 - Reports go only to stdout or an explicit output path.
 - No network connection is used by the audit engine.
+- Large indexes and metadata columns have configurable scan limits.
+- Raw-count evidence uses a bounded sample and never densifies sparse matrices.
+- Reports expose column names and aggregate counts, not donor, sample, or cell-type values.
 - No omics datasets, credentials, or machine-specific private paths belong in Git.
-- Unit tests create tiny synthetic H5AD files in temporary directories.
 
 ## Development and testing
 
@@ -126,14 +159,13 @@ OMICSREPRO_H5AD=/path/to/read-only/data/example.h5ad \
 pytest -m integration
 ```
 
-See [docs/development.md](docs/development.md) for the local/server workflow and
-[CONTRIBUTING.md](CONTRIBUTING.md) for contribution guidance.
+See [docs/development.md](docs/development.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
-## Scope after v0.1
+## Scope after v0.2
 
-Planned profiles include Seurat, workflow engines, environment lockfiles, and publication
-artifact checks. Optional AI explanations may be added later; core validation will remain
-offline and deterministic.
+Planned work includes versioned community profiles, checksums and environment lockfiles, Seurat
+support, workflow-engine adapters, and stronger artifact provenance. Optional AI explanations may
+be added later; core validation will remain offline and deterministic.
 
 ## License
 

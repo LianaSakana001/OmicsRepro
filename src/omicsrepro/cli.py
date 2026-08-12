@@ -13,6 +13,7 @@ import typer
 from omicsrepro import __version__
 from omicsrepro.audit import audit_project
 from omicsrepro.config import ManifestError
+from omicsrepro.profiles import PROFILE_VERSION, PROFILES, SEMANTIC_ALIASES
 from omicsrepro.reporting import render_json, render_markdown, write_report
 
 app = typer.Typer(
@@ -48,6 +49,28 @@ def doctor() -> None:
     typer.echo(json.dumps(report, indent=2, sort_keys=True))
 
 
+@app.command("profiles")
+def show_profiles() -> None:
+    """Print the built-in single-cell delivery profiles as JSON."""
+
+    payload = {
+        "profile_version": PROFILE_VERSION,
+        "profiles": {
+            name: {
+                "required_obs_concepts": profile.required_obs_concepts,
+                "required_var_concepts": profile.required_var_concepts,
+                "require_raw_counts": profile.require_raw_counts,
+                "require_embedding": profile.require_embedding,
+            }
+            for name, profile in sorted(PROFILES.items())
+        },
+        "semantic_aliases": {
+            name: values for name, values in sorted(SEMANTIC_ALIASES.items())
+        },
+    }
+    typer.echo(json.dumps(payload, indent=2, sort_keys=True))
+
+
 @app.command("init")
 def init_project(
     directory: Annotated[
@@ -76,6 +99,7 @@ inputs:
       require_raw: false
       unique_obs_names: true
       unique_var_names: true
+    profile: scrna-basic
 """,
         encoding="utf-8",
     )

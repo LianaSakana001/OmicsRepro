@@ -13,6 +13,11 @@ def write_h5ad(
     *,
     duplicate_obs: bool = False,
     x_shape: tuple[int, int] = (2, 2),
+    delivery_ready: bool = False,
+    missing_sample: bool = False,
+    counts_shape: tuple[int, int] = (2, 2),
+    count_values: tuple[tuple[float, float], tuple[float, float]] | None = None,
+    embedding_shape: tuple[int, int] = (2, 2),
 ) -> None:
     """Write only the HDF5 structures needed by the v0.1 inspector."""
 
@@ -29,11 +34,33 @@ def write_h5ad(
             dtype=string,
         )
         obs.create_dataset("donor_id", data=["D1", "D2"], dtype=string)
+        if delivery_ready:
+            obs.create_dataset(
+                "sample_id",
+                data=["S1", "" if missing_sample else "S2"],
+                dtype=string,
+            )
+            cell_type = obs.create_group("cell_type")
+            cell_type.attrs["encoding-type"] = "categorical"
+            cell_type.attrs["encoding-version"] = "0.2.0"
+            cell_type.create_dataset("categories", data=["T cell", "B cell"], dtype=string)
+            cell_type.create_dataset("codes", data=[0, 1], dtype="int8")
+            obs.create_dataset("batch", data=["batch-1", "batch-2"], dtype=string)
         var = handle.create_group("var")
         var.attrs["_index"] = "_index"
         var.create_dataset("_index", data=["GENE1", "GENE2"], dtype=string)
         var.create_dataset("gene_ids", data=["ENSG1", "ENSG2"], dtype=string)
         handle.create_dataset("X", shape=x_shape, dtype="float32")
+        if delivery_ready:
+            layers = handle.create_group("layers")
+            if count_values is None:
+                counts = layers.create_dataset("counts", shape=counts_shape, dtype="int32")
+                if counts_shape[0] and counts_shape[1]:
+                    counts[0, 0] = 1
+            else:
+                layers.create_dataset("counts", data=count_values, dtype="float32")
+            obsm = handle.create_group("obsm")
+            obsm.create_dataset("X_umap", shape=embedding_shape, dtype="float32")
 
 
 @pytest.fixture
@@ -66,6 +93,30 @@ steps:
     script: scripts/qc.py
     inputs: [primary]
     outputs: [qc_table]
+""",
+        encoding="utf-8",
+    )
+    return project
+
+
+@pytest.fixture
+def publication_project(tmp_path: Path) -> Path:
+    """Create a minimal scRNA-seq object satisfying the publication profile."""
+
+    project = tmp_path / "publication-project"
+    write_h5ad(project / "data" / "input.h5ad", delivery_ready=True)
+    (project / "omicsrepro.yml").write_text(
+        """schema_version: 1
+project:
+  name: publication-fixture
+inputs:
+  - id: primary
+    path: data/input.h5ad
+    format: h5ad
+    profile: scrna-publication
+    checks:
+      unique_obs_names: true
+      unique_var_names: true
 """,
         encoding="utf-8",
     )

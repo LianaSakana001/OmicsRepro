@@ -9,7 +9,7 @@ configuration errors rather than silently ignored metadata.
 |---|---|---|
 | `schema_version` | yes | Must be `1`. |
 | `project.name` | yes | Human-readable project name. |
-| `inputs` | yes | One or more immutable source datasets. |
+| `inputs` | yes | One or more immutable source datasets and optional profiles. |
 | `artifacts` | no | Expected output files such as tables or figures. |
 | `steps` | no | Analysis scripts and their declared input/output IDs. |
 
@@ -23,7 +23,7 @@ user explicitly selects such a path.
 
 ## H5AD input checks
 
-Each v0.1 input has `format: h5ad` and supports:
+Each current input has `format: h5ad` and supports:
 
 | Field | Default | Meaning |
 |---|---:|---|
@@ -34,6 +34,10 @@ Each v0.1 input has `format: h5ad` and supports:
 | `unique_obs_names` | `true` | Check observation index uniqueness. |
 | `unique_var_names` | `true` | Check variable index uniqueness. |
 | `max_index_values` | `1000000` | Exact uniqueness safety limit per axis. |
+| `max_column_values` | `2000000` | Maximum rows scanned for one metadata field. |
+| `max_categories` | `100000` | Maximum distinct values retained during a bounded scan. |
+| `max_matrix_sample_values` | `100000` | Maximum stored matrix values sampled as count evidence. |
+| `semantic_aliases` | `{}` | Project aliases added to a selected profile. |
 
 When an index exceeds `max_index_values`, OmicsRepro returns a warning instead of allocating an
 unbounded in-memory set. Increase the limit deliberately if an exact check is required for a larger
@@ -49,6 +53,7 @@ inputs:
   - id: primary
     path: /read-only/public-data/example.h5ad
     format: h5ad
+    profile: scrna-publication
     checks:
       required_obs_columns:
         - donor_id
@@ -60,6 +65,11 @@ inputs:
       unique_obs_names: true
       unique_var_names: true
       max_index_values: 1000000
+      max_column_values: 2000000
+      max_categories: 100000
+      max_matrix_sample_values: 100000
+      semantic_aliases:
+        donor: [participant_code]
 artifacts:
   - id: qc_table
     path: results/qc.tsv
@@ -81,6 +91,7 @@ steps:
 - `ORP2xx`: declared artifact paths;
 - `ORP3xx`: declared analysis scripts;
 - `H5AD0xx`: AnnData/H5AD structure and semantic metadata.
+- `H5AD1xx`: profile, metadata-quality, count-evidence, and delivery checks.
 
 Rule codes remain stable within schema version 1. New backward-compatible rules may be added in
 v0.x releases.

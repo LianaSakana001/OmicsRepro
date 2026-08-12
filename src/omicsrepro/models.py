@@ -40,17 +40,35 @@ class AuditSummary(BaseModel):
     total: int
 
 
-class AuditReport(BaseModel):
-    """Stable, machine-readable v1 audit report."""
+class DatasetSummary(BaseModel):
+    """Privacy-preserving metadata for one audited omics object."""
 
     model_config = ConfigDict(frozen=True)
 
-    schema_version: int = 1
+    input_id: str
+    format: str
+    profile: str | None = None
+    observations: int | None = None
+    variables: int | None = None
+    layers: list[str] = Field(default_factory=list)
+    embeddings: list[str] = Field(default_factory=list)
+    raw_count_location: str | None = None
+    raw_counts_validated: bool = False
+    semantic_columns: dict[str, str] = Field(default_factory=dict)
+
+
+class AuditReport(BaseModel):
+    """Stable, machine-readable v2 audit report."""
+
+    model_config = ConfigDict(frozen=True)
+
+    schema_version: int = 2
     tool_version: str
     project: str
     manifest: str
     status: str
     summary: AuditSummary
+    datasets: list[DatasetSummary] = Field(default_factory=list)
     checks: list[CheckResult]
 
     @classmethod
@@ -61,6 +79,7 @@ class AuditReport(BaseModel):
         project: str,
         manifest: str,
         checks: list[CheckResult],
+        datasets: list[DatasetSummary] | None = None,
     ) -> AuditReport:
         """Create a report without timestamps so identical inputs stay deterministic."""
 
@@ -78,5 +97,6 @@ class AuditReport(BaseModel):
                 failed=failed,
                 total=len(checks),
             ),
+            datasets=datasets or [],
             checks=checks,
         )

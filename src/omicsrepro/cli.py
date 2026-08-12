@@ -15,6 +15,12 @@ from omicsrepro.audit import audit_project
 from omicsrepro.config import ManifestError
 from omicsrepro.profiles import PROFILE_VERSION, PROFILES, SEMANTIC_ALIASES
 from omicsrepro.reporting import render_json, render_markdown, write_report
+from omicsrepro.verification.config import (
+    VerificationContractError,
+    load_verification_contract,
+)
+from omicsrepro.verification.models import VerificationOutcome
+from omicsrepro.verification.scrna_de import verify_scrna_de_preflight
 
 app = typer.Typer(
     add_completion=False,
@@ -146,6 +152,37 @@ def check_project(
 
     if report.summary.failed or (fail_on_warning and report.summary.warnings):
         raise typer.Exit(code=1)
+
+
+@app.command("verify")
+def verify_project(
+    project: Annotated[
+        Path, typer.Argument(help="Project directory or explicit omicsrepro.yml path.")
+    ],
+    contract_file: Annotated[
+        Path,
+        typer.Option(
+            "--contract-file",
+            help="YAML declaration for an experimental scientific-use contract.",
+        ),
+    ],
+) -> None:
+    """Run a read-only experimental scientific-use contract and emit a JSON receipt."""
+
+    try:
+        contract = load_verification_contract(contract_file)
+        receipt = verify_scrna_de_preflight(project, contract)
+        typer.echo(
+            json.dumps(receipt.model_dump(mode="json"), indent=2, sort_keys=True),
+        )
+    except (ManifestError, VerificationContractError, OSError) as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(code=2) from exc
+
+    if receipt.verdict == VerificationOutcome.FAIL:
+        raise typer.Exit(code=1)
+    if receipt.verdict == VerificationOutcome.INDETERMINATE:
+        raise typer.Exit(code=3)
 
 
 if __name__ == "__main__":

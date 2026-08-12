@@ -34,3 +34,8 @@ pytest -m integration
 All generated fixtures, caches, and reports must stay under `/workspace` or a temporary directory.
 Server development deployments must not copy or modify `.git`; Git operations happen in the local
 development checkout.
+
+Phase 0 server runs may inspect only explicitly selected public H5AD files under the read-only mount.
+Contracts, derived privacy-safe fixtures, receipts, benchmark tables, and caches must stay under the
+writable OmicsRepro project directory. The default verifier must not download data, run notebooks,
+or execute analysis scripts; any future opt-in runner requires a separate security review.

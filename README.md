@@ -10,6 +10,10 @@ access.
 > Status: v0.2. The manifest remains schema version 1; JSON and Markdown reports use schema
 > version 2.
 
+The post-v0.2 experimental track evaluates narrow scientific-use contracts. Experimental receipts
+report `INDETERMINATE` when the available evidence cannot support a claim; they do not certify
+biological truth or replace expert statistical review.
+
 ## The problem
 
 A project can contain code and an H5AD file yet still be difficult to reuse. The deposited object
@@ -156,6 +160,10 @@ full contract.
 | `1` | One or more checks failed, or `--fail-on-warning` was selected. |
 | `2` | Manifest, command, or explicit report write was invalid. |
 
+The experimental `verify` command also uses exit code `3` when the receipt is
+`INDETERMINATE`. See [docs/verification-boundaries.md](docs/verification-boundaries.md) before using
+experimental contracts in CI.
+
 ## Safety model
 
 - Inputs are opened read-only.
@@ -196,9 +204,11 @@ documented in [docs/releasing.md](docs/releasing.md).
 
 ## Scope after v0.2
 
-Planned work includes versioned community profiles, checksums and environment lockfiles, Seurat
-support, workflow-engine adapters, and stronger artifact provenance. Optional AI explanations may
-be added later; core validation will remain offline and deterministic.
+The next phase is evidence-gated rather than format-gated. OmicsRepro will first benchmark a narrow
+single-cell differential-expression preflight against realistic silent failures and strong Agent +
+expert-instruction baselines. Seurat, additional omics, execution adapters, and UI work remain
+candidate expansions only after real failure cases justify them. See
+[docs/phase0-benchmark.md](docs/phase0-benchmark.md).
 
 ## License
 

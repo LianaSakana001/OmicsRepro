@@ -18,6 +18,7 @@ def write_h5ad(
     counts_shape: tuple[int, int] = (2, 2),
     count_values: tuple[tuple[float, float], tuple[float, float]] | None = None,
     embedding_shape: tuple[int, int] = (2, 2),
+    design_rows: list[tuple[str, str, str, str]] | None = None,
 ) -> None:
     """Write only the HDF5 structures needed by the v0.1 inspector."""
 
@@ -28,12 +29,18 @@ def write_h5ad(
         handle.attrs["encoding-version"] = "0.1.0"
         obs = handle.create_group("obs")
         obs.attrs["_index"] = "_index"
+        rows = design_rows or []
         obs.create_dataset(
             "_index",
-            data=["cell-a", "cell-a" if duplicate_obs else "cell-b"],
+            data=(
+                [f"cell-{index}" for index in range(len(rows))]
+                if rows
+                else ["cell-a", "cell-a" if duplicate_obs else "cell-b"]
+            ),
             dtype=string,
         )
-        obs.create_dataset("donor_id", data=["D1", "D2"], dtype=string)
+        donors = [row[2] for row in rows] if rows else ["D1", "D2"]
+        obs.create_dataset("donor_id", data=donors, dtype=string)
         if delivery_ready:
             obs.create_dataset(
                 "sample_id",
@@ -46,6 +53,10 @@ def write_h5ad(
             cell_type.create_dataset("categories", data=["T cell", "B cell"], dtype=string)
             cell_type.create_dataset("codes", data=[0, 1], dtype="int8")
             obs.create_dataset("batch", data=["batch-1", "batch-2"], dtype=string)
+        if rows:
+            obs.create_dataset("cell_type", data=[row[0] for row in rows], dtype=string)
+            obs.create_dataset("disease", data=[row[1] for row in rows], dtype=string)
+            obs.create_dataset("sample_id", data=[row[3] for row in rows], dtype=string)
         var = handle.create_group("var")
         var.attrs["_index"] = "_index"
         var.create_dataset("_index", data=["GENE1", "GENE2"], dtype=string)

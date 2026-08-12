@@ -185,3 +185,26 @@ def test_column_scan_limit_warns_without_reading_values(publication_project: Pat
     assert len(quality) == 4
     assert all(item.outcome == Outcome.WARN for item in quality)
     assert all(item.evidence["scanned"] is False for item in quality)
+
+
+def test_categorical_cardinality_is_bounded(publication_project: Path) -> None:
+    manifest = publication_project / "omicsrepro.yml"
+    manifest.write_text(
+        manifest.read_text(encoding="utf-8").replace(
+            "      unique_obs_names: true",
+            "      unique_obs_names: true\n      max_categories: 1",
+        ),
+        encoding="utf-8",
+    )
+
+    report = audit_project(publication_project)
+    cell_type = next(
+        item
+        for item in _by_code(report, "H5AD104")
+        if item.evidence["concept"] == "cell_type"
+    )
+
+    assert cell_type.outcome == Outcome.WARN
+    assert cell_type.evidence["categories"] == 1
+    assert cell_type.evidence["declared_categories"] == 2
+    assert cell_type.evidence["categories_truncated"] is True

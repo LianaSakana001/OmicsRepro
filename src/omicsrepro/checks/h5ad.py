@@ -237,13 +237,21 @@ def _column_quality(
         for start in range(0, row_count, SCAN_CHUNK_SIZE):
             chunk = values[start : min(start + SCAN_CHUNK_SIZE, row_count)]
             missing += int(np.count_nonzero(chunk < 0))
-            used_codes.update(int(code) for code in np.unique(chunk) if code >= 0)
+            for code in np.unique(chunk):
+                decoded_code = int(code)
+                if decoded_code < 0 or decoded_code in used_codes:
+                    continue
+                if len(used_codes) < max_categories:
+                    used_codes.add(decoded_code)
+                else:
+                    categories_truncated = True
         return {
             "scanned": True,
             "rows": row_count,
             "missing_values": missing,
             "missing_fraction": round(missing / row_count, 6) if row_count else 0.0,
             "categories": len(used_codes),
+            "categories_truncated": categories_truncated,
             "declared_categories": category_count,
             "categorical": True,
         }

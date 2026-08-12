@@ -9,14 +9,23 @@ description = "Local-first reproducibility checks for omics research"
 readme = "README.md"
 requires-python = ">=3.11"
 license = "Apache-2.0"
+license-files = ["LICENSE"]
 authors = [
   { name = "OmicsRepro contributors" },
 ]
+keywords = [
+  "bioinformatics",
+  "reproducibility",
+  "single-cell",
+  "h5ad",
+  "anndata",
+]
 classifiers = [
-  "Development Status :: 2 - Pre-Alpha",
+  "Development Status :: 3 - Alpha",
   "Environment :: Console",
   "Intended Audience :: Science/Research",
-  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
   "Programming Language :: Python :: 3.11",
   "Programming Language :: Python :: 3.12",
   "Topic :: Scientific/Engineering :: Bio-Informatics",
@@ -39,6 +48,17 @@ dev = [
   "pytest-cov>=5,<8",
   "ruff>=0.6,<1",
 ]
+release = [
+  "build>=1.2,<2",
+  "cffconvert==2.0.0",
+  "twine>=7,<8",
+]
+
+[project.urls]
+Homepage = "https://github.com/LianaSakana001/OmicsRepro"
+Source = "https://github.com/LianaSakana001/OmicsRepro"
+Issues = "https://github.com/LianaSakana001/OmicsRepro/issues"
+Changelog = "https://github.com/LianaSakana001/OmicsRepro/blob/main/CHANGELOG.md"
 
 [project.scripts]
 omicsrepro = "omicsrepro.cli:app"

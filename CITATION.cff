@@ -1,0 +1,19 @@
+cff-version: 1.2.0
+message: >-
+  If you use OmicsRepro in a dataset delivery, publication, or reproducibility review, please cite
+  the software and the exact version used.
+type: software
+title: "OmicsRepro: local-first reproducibility checks for omics research"
+version: "0.2.0"
+date-released: "2026-08-12"
+authors:
+  - name: OmicsRepro contributors
+repository-code: "https://github.com/LianaSakana001/OmicsRepro"
+url: "https://github.com/LianaSakana001/OmicsRepro"
+license: Apache-2.0
+keywords:
+  - bioinformatics
+  - reproducibility
+  - single-cell
+  - H5AD
+  - AnnData

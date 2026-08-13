@@ -1,14 +1,25 @@
 # OmicsRepro
 
-**Preflight checks for single-cell data delivery and publication.**
+**Evidence-based preflight for single-cell data delivery and experimental scientific-use
+verification.**
 
 OmicsRepro audits the evidence chain from immutable source data to analysis scripts and expected
 artifacts. It provides deterministic, local-first checks for Python and AnnData/H5AD projects. It
 does not execute project scripts, load the full expression matrix, upload data, or require network
 access.
 
-> Status: v0.2. The manifest remains schema version 1; JSON and Markdown reports use schema
+> Status: the stable v0.2 code is available on `main`, but no immutable `v0.2.0` release has been
+> published yet. The manifest remains schema version 1; JSON and Markdown audit reports use schema
 > version 2.
+
+The post-v0.2 experimental track evaluates narrow scientific-use contracts. Experimental receipts
+report `INDETERMINATE` when the available evidence cannot support a claim; they do not certify
+biological truth or replace expert statistical review.
+
+OmicsRepro is currently running a Phase 0 falsification study: can a deterministic verifier catch
+silent scientific failures more reliably than a strong Agent with expert instructions? Read the
+[product charter](docs/product-charter.md) and [benchmark protocol](docs/phase0-benchmark.md) before
+interpreting the experimental track as a product claim.
 
 ## The problem
 
@@ -92,6 +103,18 @@ omicsrepro check my-project --format markdown --output reports/omicsrepro.md
 
 OmicsRepro refuses to replace an existing report unless `--force` is supplied explicitly.
 
+## Which command should I use?
+
+| Command | Status | Use it for | It does not claim |
+|---|---|---|---|
+| `omicsrepro check` | Stable v0.2 behavior | H5AD delivery, structure, metadata, count, embedding, and declared artifact preflight | That a scientific analysis was executed correctly |
+| `omicsrepro verify` | Experimental Phase 0 | A declared `scrna.de_between_conditions/v0` artifact-level preflight | That aggregation, model design, contrast, method, or results were verified |
+
+The experimental verifier is deliberately fail-closed. A clean artifact-level preflight still
+returns `INDETERMINATE` for execution claims until separately reviewed execution evidence exists.
+See [docs/contracts/scrna-de-between-conditions-v0.md](docs/contracts/scrna-de-between-conditions-v0.md)
+for the exact contract.
+
 ## Profiles
 
 Profiles express domain requirements without forcing every project to use identical column names.
@@ -156,6 +179,10 @@ full contract.
 | `1` | One or more checks failed, or `--fail-on-warning` was selected. |
 | `2` | Manifest, command, or explicit report write was invalid. |
 
+The experimental `verify` command also uses exit code `3` when the receipt is
+`INDETERMINATE`. See [docs/verification-boundaries.md](docs/verification-boundaries.md) before using
+experimental contracts in CI.
+
 ## Safety model
 
 - Inputs are opened read-only.
@@ -184,6 +211,19 @@ pytest -m integration
 
 See [docs/development.md](docs/development.md) and [CONTRIBUTING.md](CONTRIBUTING.md).
 
+## Participate in Phase 0
+
+The most useful contribution is a small, reviewable failure case—not another broad feature. Good
+cases represent a silent error that could survive a successful analysis run, such as a donor mapped
+to two conditions, a sample mapped to two donors, an insufficient replicate design, an unsuitable
+matrix, or ambiguous metadata.
+
+Public contributions must use synthetic data or redistributable, non-identifying derivatives. Do
+not submit private omics files, donor/sample identifiers, credentials, or machine-specific paths.
+The repository contains a machine-checked development corpus under
+[`benchmarks/phase0`](benchmarks/phase0); frozen evaluation labels remain outside the development
+branch until a benchmark round is complete.
+
 ## Citation
 
 If OmicsRepro contributes to a dataset delivery, publication, or reproducibility review, cite the
@@ -196,9 +236,12 @@ documented in [docs/releasing.md](docs/releasing.md).
 
 ## Scope after v0.2
 
-Planned work includes versioned community profiles, checksums and environment lockfiles, Seurat
-support, workflow-engine adapters, and stronger artifact provenance. Optional AI explanations may
-be added later; core validation will remain offline and deterministic.
+The next phase is evidence-gated rather than format-gated. OmicsRepro will first benchmark a narrow
+single-cell differential-expression preflight against realistic silent failures and strong Agent +
+expert-instruction baselines. Seurat, additional omics, execution adapters, and UI work remain
+candidate expansions only after real failure cases justify them. See
+[docs/phase0-benchmark.md](docs/phase0-benchmark.md). The governing product scope and stop/pivot
+conditions are recorded in [docs/product-charter.md](docs/product-charter.md).
 
 ## License
 

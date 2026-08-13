@@ -1,0 +1,47 @@
+schema_version: 1
+id: p0-dev-015
+partition: development
+class: pass
+failure_family: valid_repeated_observations
+severity: control
+title: Multiple cells per donor remain a valid design precondition
+rationale: Repeated cellular observations are expected and must not be confused with additional biological replicates.
+case_author: omicsrepro-maintainers
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-D141, SYN-S141]
+    - [Microglia, AD, SYN-D141, SYN-S141]
+    - [Microglia, AD, SYN-D142, SYN-S142]
+    - [Microglia, Control, SYN-D143, SYN-S143]
+    - [Microglia, Control, SYN-D143, SYN-S143]
+    - [Microglia, Control, SYN-D144, SYN-S144]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 2
+expected:
+  l1_decision: pass
+  rule_outcomes:
+    ORV107: pass
+    ORV108: pass
+    ORV190: indeterminate
+  allowed_l1_decisions: []
+privacy_canaries: [SYN-D141, SYN-S141]
+label_review:
+  status: pending
+  reviewer: null

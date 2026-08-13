@@ -1,0 +1,45 @@
+schema_version: 1
+id: p0-dev-007
+partition: development
+class: near_miss
+failure_family: contrast_subset_risk
+severity: medium
+title: Selected population contains a third condition
+rationale: The declared contrast can be valid, but downstream code must subset it explicitly.
+case_author: omicsrepro-maintainers
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-D61, SYN-S61]
+    - [Microglia, AD, SYN-D62, SYN-S62]
+    - [Microglia, Control, SYN-D63, SYN-S63]
+    - [Microglia, Control, SYN-D64, SYN-S64]
+    - [Microglia, MCI, SYN-D65, SYN-S65]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 2
+expected:
+  l1_decision: pass
+  rule_outcomes:
+    ORV109: warn
+    ORV190: indeterminate
+  allowed_l1_decisions: []
+privacy_canaries: [SYN-D65, SYN-S65]
+label_review:
+  status: pending
+  reviewer: null

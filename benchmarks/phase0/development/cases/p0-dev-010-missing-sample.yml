@@ -1,0 +1,44 @@
+schema_version: 1
+id: p0-dev-010
+partition: development
+class: fail
+failure_family: missing_design_metadata
+severity: high
+title: Selected population contains a missing sample
+rationale: Missing sample identity breaks the declared cell-to-sample-to-donor evidence chain.
+case_author: omicsrepro-maintainers
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-D91, ""]
+    - [Microglia, AD, SYN-D92, SYN-S92]
+    - [Microglia, Control, SYN-D93, SYN-S93]
+    - [Microglia, Control, SYN-D94, SYN-S94]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 1
+expected:
+  l1_decision: fail
+  rule_outcomes:
+    ORV105: fail
+    ORV190: indeterminate
+  allowed_l1_decisions: []
+privacy_canaries: [SYN-D91, SYN-D94]
+label_review:
+  status: pending
+  reviewer: null

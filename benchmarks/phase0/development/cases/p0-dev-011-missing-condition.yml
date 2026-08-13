@@ -1,0 +1,43 @@
+schema_version: 1
+id: p0-dev-011
+partition: development
+class: fail
+failure_family: missing_design_metadata
+severity: high
+title: Selected population contains a missing condition
+rationale: A biological replicate cannot support a contrast when its condition assignment is missing.
+case_author: omicsrepro-maintainers
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, "", SYN-D101, SYN-S101]
+    - [Microglia, AD, SYN-D102, SYN-S102]
+    - [Microglia, Control, SYN-D103, SYN-S103]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 1
+expected:
+  l1_decision: fail
+  rule_outcomes:
+    ORV105: fail
+    ORV190: indeterminate
+  allowed_l1_decisions: []
+privacy_canaries: [SYN-D101, SYN-S101]
+label_review:
+  status: pending
+  reviewer: null

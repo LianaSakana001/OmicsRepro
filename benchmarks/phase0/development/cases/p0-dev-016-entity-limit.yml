@@ -1,0 +1,43 @@
+schema_version: 1
+id: p0-dev-016
+partition: development
+class: ambiguous
+failure_family: entity_limit_exhaustion
+severity: medium
+title: Declared entity limit prevents mapping inspection
+rationale: Cardinality safety exhaustion must produce an explicit abstention rather than a guessed verdict.
+case_author: omicsrepro-maintainers
+provenance:
+  kind: synthetic
+  generator: omicsrepro.phase0.synthetic/v1
+  license: CC0-1.0
+fixture:
+  design_rows:
+    - [Microglia, AD, SYN-D151, SYN-S151]
+    - [Microglia, Control, SYN-D152, SYN-S152]
+  counts:
+    mode: valid
+contract:
+  schema_version: 1
+  contract: scrna.de_between_conditions/v0
+  input_id: primary
+  population:
+    value: Microglia
+  condition:
+    column: disease
+    case: AD
+    control: Control
+  replicate:
+    concept: donor
+    min_per_group: 1
+  max_entities: 1
+expected:
+  l1_decision: indeterminate
+  rule_outcomes:
+    ORV103: indeterminate
+    ORV190: indeterminate
+  allowed_l1_decisions: [indeterminate]
+privacy_canaries: [SYN-D151, SYN-S151]
+label_review:
+  status: pending
+  reviewer: null

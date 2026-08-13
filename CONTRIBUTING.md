@@ -35,5 +35,9 @@ evaluation labels. During an active benchmark round, rule authors must not inspe
 the frozen evaluation partition. Case labels require independent review before they count toward a
 reported benchmark.
 
+Do not mark a label `reviewed` unless the separate review sheet records complete scientific,
+rule-outcome, and privacy approval from someone other than `case_author`. Frozen cases and labels
+are accepted only by the evaluation custodian outside the development checkout.
+
 See `docs/releasing.md` for the maintainer-only release checklist. Pull requests must not create or
 move release tags.

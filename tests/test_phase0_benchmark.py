@@ -30,12 +30,26 @@ def test_development_harness_matches_expected_l1_outcomes() -> None:
         "p0-dev-006",
         "p0-dev-007",
         "p0-dev-008",
+        "p0-dev-009",
+        "p0-dev-010",
+        "p0-dev-011",
+        "p0-dev-012",
+        "p0-dev-013",
+        "p0-dev-014",
+        "p0-dev-015",
+        "p0-dev-016",
     ]
-    assert report["case_count"] == 8
-    assert report["matched"] == 8
+    assert report["case_count"] == 16
+    assert report["matched"] == 16
     assert report["actual_l1_decisions"] == {
-        "fail": 5,
-        "indeterminate": 1,
-        "pass": 2,
+        "fail": 10,
+        "indeterminate": 2,
+        "pass": 4,
     }
-    assert report["label_review"] == {"pending": 8}
+    assert report["label_review"] == {"pending": 16}
+    assert report["review_round"] == "phase0-development-r1"
+    assert report["baseline_protocol"] == {
+        "id": "phase0-scrna-de-baselines/v1",
+        "baseline_count": 5,
+        "network_access": "disabled",
+    }

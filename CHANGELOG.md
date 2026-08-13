@@ -11,6 +11,8 @@ Versioning while it develops its public manifest, report, and adapter contracts.
 - Explicit assurance levels and fail-closed `INDETERMINATE` / `NOT_APPLICABLE` outcomes.
 - Phase 0 falsification benchmark, product responsibility, and safety boundaries.
 - Versioned product charter and a machine-checked Phase 0 development-corpus harness.
+- Independent label-review packet, five-way baseline protocol, common output schema, and frozen
+  evaluation custody plan.
 
 ### Security
 

@@ -1,11 +1,11 @@
 schema_version: 1
-id: p0-dev-001
+id: p0-dev-014
 partition: development
-class: pass
-failure_family: valid_control
+class: decoy
+failure_family: unselected_population_decoy
 severity: control
-title: Complete two-group donor design
-rationale: A valid control is required to measure false positives in artifact-level checks.
+title: Conflicting donor exists only outside the target population
+rationale: Evidence outside the declared population must not create a false failure for the selected comparison.
 case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
@@ -13,10 +13,10 @@ provenance:
   license: CC0-1.0
 fixture:
   design_rows:
-    - [Microglia, AD, SYN-D01, SYN-S01]
-    - [Microglia, AD, SYN-D02, SYN-S02]
-    - [Microglia, Control, SYN-D03, SYN-S03]
-    - [Microglia, Control, SYN-D04, SYN-S04]
+    - [Microglia, AD, SYN-D131, SYN-S131]
+    - [Microglia, Control, SYN-D132, SYN-S132]
+    - [Astrocyte, AD, SYN-DECOY-D, SYN-S133]
+    - [Astrocyte, Control, SYN-DECOY-D, SYN-S134]
   counts:
     mode: valid
 contract:
@@ -31,18 +31,16 @@ contract:
     control: Control
   replicate:
     concept: donor
-    min_per_group: 2
+    min_per_group: 1
 expected:
   l1_decision: pass
   rule_outcomes:
     ORV104: pass
-    ORV105: pass
-    ORV106: pass
     ORV107: pass
     ORV108: pass
     ORV190: indeterminate
   allowed_l1_decisions: []
-privacy_canaries: [SYN-D01, SYN-S01]
+privacy_canaries: [SYN-DECOY-D, SYN-S133]
 label_review:
   status: pending
   reviewer: null

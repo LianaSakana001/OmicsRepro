@@ -1,11 +1,11 @@
 schema_version: 1
-id: p0-dev-004
+id: p0-dev-011
 partition: development
 class: fail
-failure_family: insufficient_biological_replicates
+failure_family: missing_design_metadata
 severity: high
-title: Control group is below the declared donor floor
-rationale: Cell count cannot replace the declared minimum number of biological replicates.
+title: Selected population contains a missing condition
+rationale: A biological replicate cannot support a contrast when its condition assignment is missing.
 case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
@@ -13,10 +13,9 @@ provenance:
   license: CC0-1.0
 fixture:
   design_rows:
-    - [Microglia, AD, SYN-D31, SYN-S31]
-    - [Microglia, AD, SYN-D32, SYN-S32]
-    - [Microglia, Control, SYN-D33, SYN-S33]
-    - [Microglia, Control, SYN-D33, SYN-S34]
+    - [Microglia, "", SYN-D101, SYN-S101]
+    - [Microglia, AD, SYN-D102, SYN-S102]
+    - [Microglia, Control, SYN-D103, SYN-S103]
   counts:
     mode: valid
 contract:
@@ -31,14 +30,14 @@ contract:
     control: Control
   replicate:
     concept: donor
-    min_per_group: 2
+    min_per_group: 1
 expected:
   l1_decision: fail
   rule_outcomes:
-    ORV108: fail
+    ORV105: fail
     ORV190: indeterminate
   allowed_l1_decisions: []
-privacy_canaries: [SYN-D33, SYN-S34]
+privacy_canaries: [SYN-D101, SYN-S101]
 label_review:
   status: pending
   reviewer: null

@@ -1,0 +1,53 @@
+schema_version: 1
+id: phase0-scrna-de-baselines/v1
+contract: scrna.de_between_conditions/v0
+network_access: disabled
+evidence_budget:
+  - case H5AD artifact mounted read-only
+  - declared scientific-use contract
+  - OmicsRepro manifest
+  - local inspection tools without network access
+output_fields:
+  - case_id
+  - baseline_id
+  - attempt
+  - decision
+  - detected_failure_families
+  - evidence
+  - remediation
+  - abstention_reason
+  - runtime_seconds
+  - token_usage
+  - tool_versions
+output_schema: output-schema.json
+baselines:
+  - id: agent
+    kind: stochastic
+    repetitions: 5
+    instructions: agent.md
+    receives_omicsrepro_receipt: false
+    score_only_documented_scope: false
+  - id: agent_expert_instructions
+    kind: stochastic
+    repetitions: 5
+    instructions: expert-instructions.md
+    receives_omicsrepro_receipt: false
+    score_only_documented_scope: false
+  - id: native_validators
+    kind: deterministic
+    repetitions: 1
+    instructions: null
+    receives_omicsrepro_receipt: false
+    score_only_documented_scope: true
+  - id: omicsrepro
+    kind: deterministic
+    repetitions: 1
+    instructions: null
+    receives_omicsrepro_receipt: false
+    score_only_documented_scope: false
+  - id: agent_omicsrepro
+    kind: stochastic
+    repetitions: 5
+    instructions: agent-with-receipt.md
+    receives_omicsrepro_receipt: true
+    score_only_documented_scope: false

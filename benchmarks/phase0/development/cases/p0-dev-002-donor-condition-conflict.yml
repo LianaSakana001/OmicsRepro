@@ -6,6 +6,7 @@ failure_family: donor_condition_conflict
 severity: high
 title: One donor appears in both conditions
 rationale: A biological replicate cannot independently support both sides of the declared contrast.
+case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
   generator: omicsrepro.phase0.synthetic/v1

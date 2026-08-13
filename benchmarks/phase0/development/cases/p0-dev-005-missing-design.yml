@@ -6,6 +6,7 @@ failure_family: missing_design_metadata
 severity: high
 title: Selected population contains a missing donor
 rationale: A cell without donor identity cannot be assigned to a biological replicate.
+case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
   generator: omicsrepro.phase0.synthetic/v1

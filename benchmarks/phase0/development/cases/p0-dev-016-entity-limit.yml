@@ -1,11 +1,11 @@
 schema_version: 1
-id: p0-dev-004
+id: p0-dev-016
 partition: development
-class: fail
-failure_family: insufficient_biological_replicates
-severity: high
-title: Control group is below the declared donor floor
-rationale: Cell count cannot replace the declared minimum number of biological replicates.
+class: ambiguous
+failure_family: entity_limit_exhaustion
+severity: medium
+title: Declared entity limit prevents mapping inspection
+rationale: Cardinality safety exhaustion must produce an explicit abstention rather than a guessed verdict.
 case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
@@ -13,10 +13,8 @@ provenance:
   license: CC0-1.0
 fixture:
   design_rows:
-    - [Microglia, AD, SYN-D31, SYN-S31]
-    - [Microglia, AD, SYN-D32, SYN-S32]
-    - [Microglia, Control, SYN-D33, SYN-S33]
-    - [Microglia, Control, SYN-D33, SYN-S34]
+    - [Microglia, AD, SYN-D151, SYN-S151]
+    - [Microglia, Control, SYN-D152, SYN-S152]
   counts:
     mode: valid
 contract:
@@ -31,14 +29,15 @@ contract:
     control: Control
   replicate:
     concept: donor
-    min_per_group: 2
+    min_per_group: 1
+  max_entities: 1
 expected:
-  l1_decision: fail
+  l1_decision: indeterminate
   rule_outcomes:
-    ORV108: fail
+    ORV103: indeterminate
     ORV190: indeterminate
-  allowed_l1_decisions: []
-privacy_canaries: [SYN-D33, SYN-S34]
+  allowed_l1_decisions: [indeterminate]
+privacy_canaries: [SYN-D151, SYN-S151]
 label_review:
   status: pending
   reviewer: null

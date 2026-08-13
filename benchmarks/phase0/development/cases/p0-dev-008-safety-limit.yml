@@ -6,6 +6,7 @@ failure_family: safety_limit_exhaustion
 severity: medium
 title: Declared observation limit prevents design inspection
 rationale: Resource safety must cause an honest abstention, not an inferred pass or failure.
+case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
   generator: omicsrepro.phase0.synthetic/v1

@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import tempfile
 from collections import Counter
+from datetime import date
 from pathlib import Path
 from typing import Literal
 
@@ -21,6 +22,8 @@ from omicsrepro.verification.models import (
 from omicsrepro.verification.scrna_de import verify_scrna_de_preflight
 
 CASE_ROOT = Path(__file__).parent / "development" / "cases"
+REVIEW_SHEET = Path(__file__).parent / "review" / "label-review.yml"
+BASELINE_PROTOCOL = Path(__file__).parent / "baselines" / "protocol.yml"
 EXCLUDED_L1_CODES = frozenset({"ORV190"})
 
 CaseDecision = Literal["pass", "fail", "indeterminate"]
@@ -42,7 +45,7 @@ class CountsFixture(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
 
-    mode: Literal["valid", "absent", "non_integer"]
+    mode: Literal["valid", "absent", "non_integer", "shape_mismatch"]
 
 
 class Fixture(BaseModel):
@@ -96,6 +99,7 @@ class DevelopmentCase(BaseModel):
     severity: Literal["control", "low", "medium", "high"]
     title: str = Field(min_length=3)
     rationale: str = Field(min_length=20)
+    case_author: str = Field(min_length=1)
     provenance: Provenance
     fixture: Fixture
     contract: ScrnaDEContractSpec
@@ -115,6 +119,109 @@ class DevelopmentCase(BaseModel):
             raise ValueError("privacy_canaries must be unique")
         if any(not value.strip() for value in self.privacy_canaries):
             raise ValueError("privacy_canaries cannot contain empty values")
+        return self
+
+
+class ReviewEntry(BaseModel):
+    """Independent scientific and privacy review for one proposed case label."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    case_id: str = Field(pattern=r"^p0-dev-[0-9]{3}$")
+    status: Literal["pending", "approved"]
+    proposed_l1_decision: CaseDecision
+    proposed_severity: Literal["control", "low", "medium", "high"]
+    scientific_rationale_review: Literal["pending", "approved"]
+    rule_outcomes_review: Literal["pending", "approved"]
+    privacy_review: Literal["pending", "approved"]
+    reviewer: str | None = None
+    reviewed_at: str | None = None
+    notes: str | None = None
+
+    @model_validator(mode="after")
+    def approval_is_complete(self) -> ReviewEntry:
+        """Prevent partial review state from being presented as approval."""
+
+        reviews = {
+            self.scientific_rationale_review,
+            self.rule_outcomes_review,
+            self.privacy_review,
+        }
+        if self.status == "approved":
+            if reviews != {"approved"} or not self.reviewer or not self.reviewed_at:
+                raise ValueError("approved labels require all reviews, reviewer, and date")
+            try:
+                date.fromisoformat(self.reviewed_at)
+            except ValueError as exc:
+                raise ValueError("reviewed_at must use ISO YYYY-MM-DD format") from exc
+        elif reviews != {"pending"} or self.reviewer is not None or self.reviewed_at is not None:
+            raise ValueError("pending labels cannot contain completed review fields")
+        return self
+
+
+class ReviewSheet(BaseModel):
+    """Versioned review packet kept separate from case implementation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[1]
+    round: str = Field(min_length=1)
+    independence_rule: str = Field(min_length=20)
+    cases: list[ReviewEntry] = Field(min_length=1)
+
+
+class BaselineSpec(BaseModel):
+    """One comparator with a fixed evidence budget and repetition count."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    id: Literal[
+        "agent",
+        "agent_expert_instructions",
+        "native_validators",
+        "omicsrepro",
+        "agent_omicsrepro",
+    ]
+    kind: Literal["deterministic", "stochastic"]
+    repetitions: int = Field(ge=1, le=20)
+    instructions: str | None
+    receives_omicsrepro_receipt: bool
+    score_only_documented_scope: bool
+
+
+class BaselineProtocol(BaseModel):
+    """Machine-checked common protocol for the five Phase 0 comparators."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal[1]
+    id: str = Field(min_length=1)
+    contract: Literal["scrna.de_between_conditions/v0"]
+    network_access: Literal["disabled"]
+    evidence_budget: list[str] = Field(min_length=1)
+    output_fields: list[str] = Field(min_length=1)
+    output_schema: str = Field(min_length=1)
+    baselines: list[BaselineSpec] = Field(min_length=5, max_length=5)
+
+    @model_validator(mode="after")
+    def exactly_five_comparators(self) -> BaselineProtocol:
+        """Keep the approved comparison set complete and non-duplicated."""
+
+        expected = {
+            "agent",
+            "agent_expert_instructions",
+            "native_validators",
+            "omicsrepro",
+            "agent_omicsrepro",
+        }
+        actual = {item.id for item in self.baselines}
+        if actual != expected or len(self.baselines) != len(actual):
+            raise ValueError("baseline protocol must contain each approved comparator exactly once")
+        receipt_consumers = {
+            item.id for item in self.baselines if item.receives_omicsrepro_receipt
+        }
+        if receipt_consumers != {"agent_omicsrepro"}:
+            raise ValueError("only agent_omicsrepro may receive an OmicsRepro receipt")
         return self
 
 
@@ -144,6 +251,53 @@ def load_cases(root: Path = CASE_ROOT) -> list[DevelopmentCase]:
     if len(ids) != len(set(ids)):
         raise ValueError("Phase 0 development case IDs must be unique")
     return sorted(cases, key=lambda case: case.id)
+
+
+def load_review_sheet(
+    cases: list[DevelopmentCase], path: Path = REVIEW_SHEET
+) -> ReviewSheet:
+    """Load the independent review packet and prove it matches case metadata."""
+
+    sheet = ReviewSheet.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+    by_id = {case.id: case for case in cases}
+    entries = {entry.case_id: entry for entry in sheet.cases}
+    if len(entries) != len(sheet.cases) or set(entries) != set(by_id):
+        raise ValueError("label review sheet must contain every development case exactly once")
+    for case_id, case in by_id.items():
+        entry = entries[case_id]
+        if entry.proposed_l1_decision != case.expected.l1_decision:
+            raise ValueError(f"{case_id}: review-sheet decision differs from the case")
+        if entry.proposed_severity != case.severity:
+            raise ValueError(f"{case_id}: review-sheet severity differs from the case")
+        expected_status = "approved" if case.label_review.status == "reviewed" else "pending"
+        if entry.status != expected_status:
+            raise ValueError(f"{case_id}: review status differs from the case")
+        if entry.status == "approved":
+            if entry.reviewer == case.case_author:
+                raise ValueError(f"{case_id}: label reviewer must be independent of case author")
+            if entry.reviewer != case.label_review.reviewer:
+                raise ValueError(f"{case_id}: reviewer differs between review sheet and case")
+    return sheet
+
+
+def load_baseline_protocol(path: Path = BASELINE_PROTOCOL) -> BaselineProtocol:
+    """Load the fixed five-way comparison protocol and instruction references."""
+
+    protocol = BaselineProtocol.model_validate(yaml.safe_load(path.read_text(encoding="utf-8")))
+    root = path.parent.resolve()
+    output_schema = (root / protocol.output_schema).resolve()
+    if root not in output_schema.parents or not output_schema.is_file():
+        raise ValueError("baseline output schema is missing or outside baseline root")
+    schema = json.loads(output_schema.read_text(encoding="utf-8"))
+    if set(protocol.output_fields) != set(schema.get("required", [])):
+        raise ValueError("baseline protocol fields differ from the output schema")
+    for baseline in protocol.baselines:
+        if baseline.instructions is None:
+            continue
+        instruction_path = (root / baseline.instructions).resolve()
+        if root not in instruction_path.parents or not instruction_path.is_file():
+            raise ValueError(f"{baseline.id}: instruction file is missing or outside baseline root")
+    return protocol
 
 
 def l1_artifact_decision(receipt: VerificationReceipt) -> CaseDecision:
@@ -188,9 +342,14 @@ def _write_fixture(project: Path, case: DevelopmentCase) -> None:
             if case.fixture.counts.mode == "valid":
                 counts = layers.create_dataset("counts", shape=(len(rows), 2), dtype="int32")
                 counts[0, 0] = 1
-            else:
+            elif case.fixture.counts.mode == "non_integer":
                 counts = layers.create_dataset("counts", shape=(len(rows), 2), dtype="float32")
                 counts[0, 0] = 0.5
+            else:
+                counts = layers.create_dataset(
+                    "counts", shape=(max(1, len(rows) - 1), 2), dtype="int32"
+                )
+                counts[0, 0] = 1
 
     (project / "omicsrepro.yml").write_text(
         f"""schema_version: 1
@@ -260,6 +419,8 @@ def run_development(root: Path = CASE_ROOT) -> dict[str, object]:
     """Run all public development cases and return a deterministic aggregate report."""
 
     cases = load_cases(root)
+    review_sheet = load_review_sheet(cases)
+    baseline_protocol = load_baseline_protocol()
     with tempfile.TemporaryDirectory(prefix="omicsrepro-phase0-") as temporary:
         results = [run_case(case, Path(temporary)) for case in cases]
     decisions = Counter(result.actual for result in results)
@@ -272,6 +433,12 @@ def run_development(root: Path = CASE_ROOT) -> dict[str, object]:
         "matched": sum(result.matched for result in results),
         "actual_l1_decisions": dict(sorted(decisions.items())),
         "label_review": dict(sorted(reviews.items())),
+        "review_round": review_sheet.round,
+        "baseline_protocol": {
+            "id": baseline_protocol.id,
+            "baseline_count": len(baseline_protocol.baselines),
+            "network_access": baseline_protocol.network_access,
+        },
         "note": "Development regression results are not a Phase 0 product claim.",
         "cases": [result.model_dump(mode="json") for result in results],
     }

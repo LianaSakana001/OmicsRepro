@@ -13,7 +13,7 @@ Each `development/cases/*.yml` file is a complete, synthetic case definition con
 | `class` | `pass`, `fail`, `near_miss`, `ambiguous`, `decoy`, `corrupted`, or `stale` |
 | `failure_family` | Narrow family represented by the case |
 | `severity` | `control`, `low`, `medium`, or `high` |
-| `title`, `rationale` | Human-reviewable purpose and scientific reasoning |
+| `title`, `rationale`, `case_author` | Human-reviewable purpose, reasoning, and label proposer |
 | `provenance` | Must declare `kind: synthetic`, generator, and a non-identifying license |
 | `fixture` | Tiny design rows and count-matrix behavior used to derive H5AD at runtime |
 | `contract` | Complete `scrna.de_between_conditions/v0` declaration |
@@ -27,6 +27,7 @@ missing values. `fixture.counts.mode` is one of:
 - `valid`: shape-compatible, non-negative integer counts with positive evidence;
 - `absent`: no accepted raw-count candidate;
 - `non_integer`: a conventional counts layer contains non-integer values.
+- `shape_mismatch`: a count-like layer does not match the observation axis.
 
 ## Expected L1 decision
 
@@ -42,7 +43,7 @@ This projection is benchmark metadata, not a new product verdict.
 ## Review rules
 
 - Start with `label_review.status: pending` and `reviewer: null`.
-- A reviewer must understand the represented scientific failure and must not be the case author.
+- A reviewer must understand the represented scientific failure and must not equal `case_author`.
 - Ambiguous cases must list `expected.allowed_l1_decisions` and explain why one deterministic label
   would be misleading.
 - A case copied from public evidence must not use this synthetic schema without documenting the

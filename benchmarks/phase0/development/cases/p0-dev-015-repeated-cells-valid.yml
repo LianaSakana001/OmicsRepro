@@ -1,11 +1,11 @@
 schema_version: 1
-id: p0-dev-001
+id: p0-dev-015
 partition: development
 class: pass
-failure_family: valid_control
+failure_family: valid_repeated_observations
 severity: control
-title: Complete two-group donor design
-rationale: A valid control is required to measure false positives in artifact-level checks.
+title: Multiple cells per donor remain a valid design precondition
+rationale: Repeated cellular observations are expected and must not be confused with additional biological replicates.
 case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
@@ -13,10 +13,12 @@ provenance:
   license: CC0-1.0
 fixture:
   design_rows:
-    - [Microglia, AD, SYN-D01, SYN-S01]
-    - [Microglia, AD, SYN-D02, SYN-S02]
-    - [Microglia, Control, SYN-D03, SYN-S03]
-    - [Microglia, Control, SYN-D04, SYN-S04]
+    - [Microglia, AD, SYN-D141, SYN-S141]
+    - [Microglia, AD, SYN-D141, SYN-S141]
+    - [Microglia, AD, SYN-D142, SYN-S142]
+    - [Microglia, Control, SYN-D143, SYN-S143]
+    - [Microglia, Control, SYN-D143, SYN-S143]
+    - [Microglia, Control, SYN-D144, SYN-S144]
   counts:
     mode: valid
 contract:
@@ -35,14 +37,11 @@ contract:
 expected:
   l1_decision: pass
   rule_outcomes:
-    ORV104: pass
-    ORV105: pass
-    ORV106: pass
     ORV107: pass
     ORV108: pass
     ORV190: indeterminate
   allowed_l1_decisions: []
-privacy_canaries: [SYN-D01, SYN-S01]
+privacy_canaries: [SYN-D141, SYN-S141]
 label_review:
   status: pending
   reviewer: null

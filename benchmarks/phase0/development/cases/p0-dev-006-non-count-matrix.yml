@@ -6,6 +6,7 @@ failure_family: non_count_matrix
 severity: high
 title: Conventional counts layer contains non-integer values
 rationale: A matrix called counts is not sufficient evidence when bounded values are non-integer.
+case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
   generator: omicsrepro.phase0.synthetic/v1

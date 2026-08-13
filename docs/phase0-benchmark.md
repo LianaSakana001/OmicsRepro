@@ -5,7 +5,7 @@ strong general Agent with expert instructions. It is a go/no-go experiment, not 
 
 ## Current status
 
-The benchmark is being assembled, not yet reported. The public development partition begins with
+The benchmark is being assembled, not yet reported. The public development partition contains
 small synthetic adversarial cases under `benchmarks/phase0/development`. These cases test the
 benchmark machinery and known boundaries; scores on them are regression results, not evidence that
 the product thesis passed.
@@ -89,6 +89,12 @@ the expected abstention for unobserved execution. The harness assigns an L1 deci
 
 This benchmark-only projection does not change the public receipt verdict or weaken fail-closed
 precedence.
+
+The five comparators use a versioned common evidence budget, instruction files, repetition counts,
+and output schema under `benchmarks/phase0/baselines`. Development labels have a separate review
+packet under `benchmarks/phase0/review`; matching a proposed label in a regression test is not an
+independent approval. Recruitment and custody for opaque evaluation cases follow
+`benchmarks/phase0/frozen-evaluation-plan.md`.
 
 ## Internal go/no-go gate
 

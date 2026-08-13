@@ -1,0 +1,164 @@
+schema_version: 1
+round: phase0-development-r1
+independence_rule: The label reviewer must not be the case author or the rule implementer for that case.
+cases:
+  - case_id: p0-dev-001
+    status: pending
+    proposed_l1_decision: pass
+    proposed_severity: control
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-002
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-003
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-004
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-005
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-006
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-007
+    status: pending
+    proposed_l1_decision: pass
+    proposed_severity: medium
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-008
+    status: pending
+    proposed_l1_decision: indeterminate
+    proposed_severity: medium
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-009
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-010
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-011
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-012
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-013
+    status: pending
+    proposed_l1_decision: fail
+    proposed_severity: high
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-014
+    status: pending
+    proposed_l1_decision: pass
+    proposed_severity: control
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-015
+    status: pending
+    proposed_l1_decision: pass
+    proposed_severity: control
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null
+  - case_id: p0-dev-016
+    status: pending
+    proposed_l1_decision: indeterminate
+    proposed_severity: medium
+    scientific_rationale_review: pending
+    rule_outcomes_review: pending
+    privacy_review: pending
+    reviewer: null
+    reviewed_at: null
+    notes: null

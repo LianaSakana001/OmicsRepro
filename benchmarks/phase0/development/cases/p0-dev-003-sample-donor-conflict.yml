@@ -6,6 +6,7 @@ failure_family: sample_donor_conflict
 severity: high
 title: One sample maps to two donors
 rationale: A sample with two donor identities makes the biological replicate mapping contradictory.
+case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
   generator: omicsrepro.phase0.synthetic/v1

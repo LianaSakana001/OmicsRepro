@@ -6,6 +6,7 @@ failure_family: contrast_subset_risk
 severity: medium
 title: Selected population contains a third condition
 rationale: The declared contrast can be valid, but downstream code must subset it explicitly.
+case_author: omicsrepro-maintainers
 provenance:
   kind: synthetic
   generator: omicsrepro.phase0.synthetic/v1

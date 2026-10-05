@@ -7,6 +7,10 @@ title: "OmicsRepro: local-first reproducibility checks for omics research"
 version: "0.2.0"
 date-released: "2026-08-12"
 authors:
+  - given-names: Liang
+    family-names: Yu
+    affiliation: "Chinese Academy of Medical Sciences & Peking Union Medical College"
+    orcid: "https://orcid.org/0009-0002-2054-7620"
   - name: OmicsRepro contributors
 repository-code: "https://github.com/LianaSakana001/OmicsRepro"
 url: "https://github.com/LianaSakana001/OmicsRepro"

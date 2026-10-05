@@ -11,7 +11,11 @@ requires-python = ">=3.11"
 license = "Apache-2.0"
 license-files = ["LICENSE"]
 authors = [
+  { name = "Liang Yu" },
   { name = "OmicsRepro contributors" },
+]
+maintainers = [
+  { name = "Liang Yu" },
 ]
 keywords = [
   "bioinformatics",

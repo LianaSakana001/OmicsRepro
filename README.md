@@ -10,6 +10,13 @@ access.
 > Status: v0.2. The manifest remains schema version 1; JSON and Markdown reports use schema
 > version 2.
 
+## Maintainer
+
+**Liang Yu**  
+Chinese Academy of Medical Sciences & Peking Union Medical College  
+GitHub: [@LianaSakana001](https://github.com/LianaSakana001)  
+ORCID: [0009-0002-2054-7620](https://orcid.org/0009-0002-2054-7620)
+
 ## The problem
 
 A project can contain code and an H5AD file yet still be difficult to reuse. The deposited object
